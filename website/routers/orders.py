@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from website.database import SessionLocal
+from website.database import get_db
 from website.models.order import Order
 from website.models.product import  Product
 from website.models.user import  User
@@ -9,13 +9,6 @@ from website.auth import get_current_user , admin_required
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
-# Dependency to get DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # -----------------------------
 # Create an order

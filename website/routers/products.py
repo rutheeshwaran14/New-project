@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends , HTTPException
 from sqlalchemy.orm import Session
-from website.database import SessionLocal
+from website.database import get_db
 from website.models import Product
 from website.schemas.schemas import ProductCreate, ProductOut
 from website.auth import get_current_user, admin_required
@@ -8,13 +8,6 @@ from fastapi_cache.decorator import cache
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
-# Dependency to get DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # -----------------------------
 # Create a new product (Admin only)

@@ -3,7 +3,7 @@ from jose import jwt, JWTError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from website.database import SessionLocal
+from website.database import get_db
 from website.models.user import User
 from passlib.hash import bcrypt
 from config import SECRET_KEY, ALGORITHM ,ACCESS_TOKEN_EXPIRE_MINUTES
@@ -24,14 +24,6 @@ def create_access_token(data: dict):
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-# ---------------- DB session ----------------
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # ---------------- Current user ----------------
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
