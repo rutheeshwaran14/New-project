@@ -13,60 +13,46 @@ from website.routers import (
 from website.routers import category
 from website.routers import seller_product, seller_orders, admin_users
 from website.utils.init_admin import create_default_admin
-
+from website.routers import google_auth
+from starlette.middleware.sessions import SessionMiddleware
+from config import settings
 
 # -------------------- DB INIT --------------------
-
 Base.metadata.create_all(bind=engine)
 
 
 # -------------------- APP INIT --------------------
-
 app = FastAPI(
     title="E-Commerce Backend",
     version="1.0.0",
     description="Production Ready E-Commerce Backend API"
 )
 
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SECRET_KEY,
+    same_site="lax",
+    https_only=False
+)
 
-# -------------------- STARTUP EVENTS --------------------
-
+# -------------------- STARTUP --------------------
 @app.on_event("startup")
 def startup():
     create_default_admin()
 
 
-# -------------------- AUTH & USER --------------------
+# -------------------- ROUTERS --------------------
 app.include_router(auth_router)
 app.include_router(users_router)
+app.include_router(google_auth.router)
 
-
-# -------------------- CATEGORY --------------------
 app.include_router(category.router)
-
-
-# -------------------- SELLER MODULE --------------------
 app.include_router(seller_product.router)
-
-
-# -------------------- PRODUCTS --------------------
 app.include_router(products_router)
-
-
-# -------------------- SHOPPING FLOW --------------------
 app.include_router(cart_router)
 app.include_router(wishlist_router)
 app.include_router(orders_router)
 app.include_router(payments_router)
-
-
-# -------------------- UX --------------------
 app.include_router(reviews_router)
-
-
-# -------------------- SELLER ORDERS --------------------
 app.include_router(seller_orders.router)
-
-
-# -------------------- ADMIN PANEL --------------------
 app.include_router(admin_users.router)

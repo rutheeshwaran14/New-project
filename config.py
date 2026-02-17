@@ -22,7 +22,8 @@ class Settings(BaseSettings):
 
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
-
+    GOOGLE_REDIRECT_URI: str
+    SECRET_KEY: str
     class Config:
         env_file = ".env"
         extra = "ignore"   # 🔥 THIS IS IMPORTANT
