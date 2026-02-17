@@ -1,28 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from website.database import get_db
-from models import User
-from schemas.schemas import UserCreate, UserOut
-from auth import hash_password
+from website.database import SessionLocal
+from website.models.user import User
+from website.schemas import UserOut
+from typing import List
+from website.dependencies.auth import admin_required
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/", response_model=UserOut)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    hashed_password = hash_password(user.password)
-    new_user = User(username=user.username, email=user.email, password=hashed_password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@router.get("/{user_id}", response_model=UserOut)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+
+@router.get("/", response_model=List[UserOut])
+def get_all_users(
+    db: Session = Depends(get_db),
+    admin = Depends(admin_required)
+):
+    return db.query(User).all()

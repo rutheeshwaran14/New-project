@@ -2,18 +2,25 @@ from pydantic import BaseModel, Field, EmailStr
 from typing import Annotated
 
 # ----------------- User -----------------
+from pydantic import BaseModel, EmailStr, Field
+from typing import Annotated
+
+from pydantic import BaseModel, EmailStr
+from typing import Annotated
+from pydantic import Field
+
 class UserCreate(BaseModel):
-    username: str
+    name: str  # changed from username
     email: EmailStr
-    password: Annotated[str, Field(min_length=6)]  # bcrypt truncation handled later
+    password: Annotated[str, Field(min_length=6)]
 
 class UserOut(BaseModel):
     id: int
-    username: str
+    name: str  # changed from username
     email: EmailStr
 
     model_config = {
-        "from_attributes": True
+        "from_attributes": True  # allows SQLAlchemy objects to work with Pydantic
     }
 
 # ----------------- Product -----------------
@@ -35,17 +42,28 @@ class ProductOut(BaseModel):
     }
 
 # ----------------- Order -----------------
-class OrderCreate(BaseModel):
-    user_id: int
+from pydantic import BaseModel
+from typing import List
+from datetime import datetime
+
+
+class OrderItemOut(BaseModel):
     product_id: int
     quantity: int
+    price: float
+
+    model_config = {"from_attributes": True}
+
 
 class OrderOut(BaseModel):
     id: int
-    user_id: int
-    product_id: int
-    quantity: int
+    total_amount: float
+    status: str
+    created_at: datetime
+    items: List[OrderItemOut]
 
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}
+
+
+class CancelOrder(BaseModel):
+    reason: str
