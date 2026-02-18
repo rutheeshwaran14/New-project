@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from datetime import datetime
-
+from website.database import get_db
 from website.database import SessionLocal
 from website.models.user import User
 from website.models.user_otp import UserOTP
@@ -16,14 +16,6 @@ from website.schemas.auth import UserCreate, OTPRequest, OTPVerify
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# ---------------- Database session ----------------
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # ---------------- Password utilities ----------------
 def hash_password(password: str) -> str:

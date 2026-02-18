@@ -5,16 +5,9 @@ from website.models.user import User
 from website.schemas import UserOut
 from typing import List
 from website.dependencies.auth import admin_required
+from website.database import get_db
 
 router = APIRouter(prefix="/users", tags=["Users"])
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/", response_model=List[UserOut])

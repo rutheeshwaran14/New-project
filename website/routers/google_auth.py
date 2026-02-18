@@ -30,12 +30,14 @@ async def google_login(request: Request):
     )
 
 # ---------------- CALLBACK ----------------
+# ---------------- CALLBACK ----------------
 @router.get("/callback")
 async def google_callback(request: Request, db: Session = Depends(get_db)):
     try:
         token = await oauth.google.authorize_access_token(request)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Google login failed. Try again.")
+    except Exception as e:
+        print("🔥 GOOGLE CALLBACK ERROR =>", e)
+        raise HTTPException(status_code=400, detail=str(e))
 
     userinfo = token.get("userinfo")
     if not userinfo:

@@ -31,10 +31,10 @@ app = FastAPI(
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.SECRET_KEY,
+    session_cookie="session",
     same_site="lax",
     https_only=False
 )
-
 # -------------------- STARTUP --------------------
 @app.on_event("startup")
 def startup():

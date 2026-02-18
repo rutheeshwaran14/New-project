@@ -6,16 +6,8 @@ from website.models.order import Order
 from website.models.order_item import OrderItem
 from website.models.product import Product
 from website.dependencies.auth import get_current_user
-
+from website.database import get_db
 router = APIRouter(prefix="/orders", tags=["Orders"])
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.post("/")
@@ -54,6 +46,39 @@ def place_order(db: Session = Depends(get_db),
     db.commit()
 
     return {"message": "Order placed successfully", "order_id": order.id}
+
+# 📥 Get all orders of logged-in user
+@router.get("/")
+def get_my_orders(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    orders = db.query(Order).filter(
+        Order.user_id == user.id,
+        Order.is_deleted == False
+    ).order_by(Order.created_at.desc()).all()
+
+    return orders
+
+
+# 📥 Get single order details
+@router.get("/{order_id}")
+def get_order_details(
+    order_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    order = db.query(Order).filter(
+        Order.id == order_id,
+        Order.user_id == user.id,
+        Order.is_deleted == False
+    ).first()
+
+    if not order:
+        raise HTTPException(404, "Order not found")
+
+    return order
+
 
 from datetime import datetime
 

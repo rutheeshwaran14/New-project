@@ -5,16 +5,9 @@ from website.models.cart import Cart
 from website.models.product import Product
 from website.schemas import CartBase, CartOut
 from typing import List
-
+from website.database import get_db
 router = APIRouter(prefix="/cart", tags=["Cart"])
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.post("/", response_model=CartOut)

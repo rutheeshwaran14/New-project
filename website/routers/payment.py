@@ -3,16 +3,9 @@ from sqlalchemy.orm import Session
 from website.database import SessionLocal
 from website.models.payment import Payment
 from website.schemas import PaymentCreate, PaymentOut
+from website.database import get_db
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.post("/", response_model=PaymentOut)

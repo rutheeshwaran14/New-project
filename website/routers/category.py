@@ -4,17 +4,9 @@ from website.database import SessionLocal
 from website.models.category import Category
 from website.schemas.category import CategoryCreate, CategoryOut
 from datetime import datetime
+from website.database import get_db
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
-
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 # Create a category
 @router.post("/", response_model=CategoryOut)

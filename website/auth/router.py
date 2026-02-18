@@ -4,13 +4,13 @@ from datetime import datetime
 
 from website.database import get_db
 from website.models.user import User
-from website.auth.schemas import UserRegister, OTPVerify, LoginSchema
+from website.schemas.otp_register import UserRegister, OTPVerify, LoginSchema
 from website.auth.utils import generate_otp, otp_expiry_time
 from website.auth.email import send_otp_email
 from website.auth.jwt import create_access_token
 from email.message import EmailMessage
 import smtplib
-from config import SMTP_EMAIL, SMTP_PASSWORD
+from config import settings
 
 from passlib.context import CryptContext
 
@@ -103,7 +103,7 @@ def login(data: LoginSchema, db: Session = Depends(get_db)):
 def send_otp_email(to_email: str, otp: str):
     msg = EmailMessage()
     msg["Subject"] = "Verify Your Account"
-    msg["From"] = SMTP_EMAIL
+    msg["From"] = settings.EMAIL_ADDRESS
     msg["To"] = to_email
 
     msg.set_content(f"""
