@@ -2,13 +2,12 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
-
+# Request body for creating a review
 class ReviewCreate(BaseModel):
-    product_id: int
     rating: int
     comment: Optional[str]
 
-
+# Response model for returning a review
 class ReviewOut(ReviewCreate):
     id: int
     created_at: datetime

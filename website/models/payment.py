@@ -4,12 +4,11 @@ from datetime import datetime
 from website.models.base import Base
 
 
-
 class Payment(Base):
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, ForeignKey("orders.id"))
+    order_id = Column(Integer, ForeignKey("orders.id"), unique=True)
     user_id = Column(Integer, ForeignKey("users.id"))
 
     amount = Column(DECIMAL(10, 2), nullable=False)
@@ -20,4 +19,4 @@ class Payment(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    order = relationship("Order", back_populates="payment", uselist=False)
+    order = relationship("Order", back_populates="payment")

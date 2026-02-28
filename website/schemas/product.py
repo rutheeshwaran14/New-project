@@ -10,6 +10,7 @@ class ProductBase(BaseModel):
     price: Decimal
     stock: int
     category_id: int
+    image: Optional[str] = None   # 🔥 ADD THIS
 
 
 class ProductCreate(ProductBase):
@@ -22,6 +23,7 @@ class ProductUpdate(BaseModel):
     price: Optional[Decimal]
     stock: Optional[int]
     category_id: Optional[int]
+    image: Optional[str] = None   # 🔥 ADD THIS
 
 
 class ProductOut(ProductBase):

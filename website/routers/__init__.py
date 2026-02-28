@@ -6,3 +6,5 @@ from .payment import router as payments_router
 from .cart import router as cart_router
 from .wishlist import router as wishlist_router
 from .reviews import router as reviews_router
+from .profile import router as profile_router
+from .category import router as category_router

@@ -1,4 +1,16 @@
 from pydantic import BaseModel
+from typing import Optional
+from decimal import Decimal
+
+
+class CartProductOut(BaseModel):
+    id: int
+    name: str
+    price: Decimal
+    image: Optional[str]
+
+    class Config:
+        from_attributes = True
 
 
 class CartBase(BaseModel):
@@ -6,8 +18,10 @@ class CartBase(BaseModel):
     quantity: int
 
 
-class CartOut(CartBase):
+class CartOut(BaseModel):
     id: int
+    quantity: int
+    product: CartProductOut
 
     class Config:
         from_attributes = True

@@ -16,33 +16,32 @@ oauth.register(
     client_id=settings.GOOGLE_CLIENT_ID,
     client_secret=settings.GOOGLE_CLIENT_SECRET,
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-    client_kwargs={
-        "scope": "openid email profile"
-    },
+    client_kwargs={"scope": "openid email profile"},
 )
 
 # ---------------- LOGIN ----------------
 @router.get("/login")
 async def google_login(request: Request):
-    return await oauth.google.authorize_redirect(
-        request,
-        settings.GOOGLE_REDIRECT_URI
-    )
+    # Store state in session
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
-# ---------------- CALLBACK ----------------
 # ---------------- CALLBACK ----------------
 @router.get("/callback")
 async def google_callback(request: Request, db: Session = Depends(get_db)):
+    # DEBUG: check session
+    if "oauth_state" not in request.session:
+        raise HTTPException(status_code=400, detail="Session expired or state missing")
+
     try:
         token = await oauth.google.authorize_access_token(request)
     except Exception as e:
         print("🔥 GOOGLE CALLBACK ERROR =>", e)
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=f"OAuth error: {e}")
 
-    userinfo = token.get("userinfo")
-    if not userinfo:
-        resp = await oauth.google.get("userinfo", token=token)
-        userinfo = resp.json()
+    # Fetch user info
+    resp = await oauth.google.get("userinfo", token=token)
+    userinfo = resp.json()
 
     email = userinfo.get("email")
     name = userinfo.get("name", "")
@@ -50,6 +49,7 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
     if not email:
         raise HTTPException(status_code=400, detail="Unable to fetch email from Google")
 
+    # Create or get user
     user = db.query(User).filter(User.email == email).first()
     if not user:
         user = User(
@@ -62,11 +62,10 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(user)
 
-    access_token = create_access_token({
-        "sub": str(user.id),
-        "role": user.role
-    })
+    # Create JWT token
+    access_token = create_access_token({"sub": str(user.id), "role": user.role})
 
+    # Return token (frontend stores it)
     return {
         "access_token": access_token,
         "token_type": "bearer",

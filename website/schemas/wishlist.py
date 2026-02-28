@@ -1,11 +1,17 @@
 from pydantic import BaseModel
-from datetime import datetime
 
+class ProductBase(BaseModel):
+    id: int
+    name: str
+    price: float
+    image: str | None
+
+    class Config:
+        orm_mode = True
 
 class WishlistOut(BaseModel):
     id: int
-    product_id: int
-    created_at: datetime
+    product: ProductBase
 
     class Config:
-        from_attributes = True
+        orm_mode = True

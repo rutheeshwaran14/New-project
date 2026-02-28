@@ -31,4 +31,4 @@ def create_tables():
     from website.models.cart import Cart
     from website.models.order import Order
 
-    Base.metadata.create_all(bind=engine, checkfirst=True)
+    
