@@ -6,10 +6,11 @@ from website.models.category import Category
 from website.models.product import Product
 from website.schemas.category import CategoryCreate, CategoryOut
 from website.schemas.product import ProductOut
+from sqlalchemy import not_
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
-# Create a category
+# Create category
 @router.post("/", response_model=CategoryOut)
 def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
     db_category = Category(name=category.name)
@@ -18,16 +19,23 @@ def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
     db.refresh(db_category)
     return db_category
 
-# Get all categories
+# Get categories except some names
 @router.get("/", response_model=List[CategoryOut])
 def list_categories(db: Session = Depends(get_db)):
-    categories = db.query(Category).all()
+    excluded_categories = ["Electronics", "Stationery", "Clothing"]
+
+    categories = db.query(Category).filter(
+        not_(Category.name.in_(excluded_categories))
+    ).all()
+
     return categories
 
 # Get products by category
 @router.get("/{category_id}/products", response_model=List[ProductOut])
 def get_category_products(category_id: int, db: Session = Depends(get_db)):
     products = db.query(Product).filter(Product.category_id == category_id).all()
+
     if not products:
         raise HTTPException(status_code=404, detail="No products found")
+
     return products
